@@ -1,0 +1,51 @@
+{
+  "perft": {
+    "startpos": {
+      "depth": 4,
+      "nodes": 197281,
+      "seconds": 2.337408458000027,
+      "nps": 84401
+    },
+    "Kiwipete": {
+      "depth": 3,
+      "nodes": 97862,
+      "seconds": 1.1203605829996377,
+      "nps": 87348
+    },
+    "Pos3": {
+      "depth": 4,
+      "nodes": 43238,
+      "seconds": 0.6026109169997653,
+      "nps": 71751
+    },
+    "Pos4": {
+      "depth": 3,
+      "nodes": 9346,
+      "seconds": 0.1242675829998916,
+      "nps": 75208
+    },
+    "Pos5": {
+      "depth": 3,
+      "nodes": 62379,
+      "seconds": 0.7516489999998157,
+      "nps": 82989
+    },
+    "Pos6": {
+      "depth": 3,
+      "nodes": 89890,
+      "seconds": 1.021025875000305,
+      "nps": 88038
+    }
+  },
+  "eval": {
+    "ns_per_call": 31723,
+    "iters": 1000
+  },
+  "search": {
+    "depth": 6,
+    "nodes": 8535,
+    "time_ms": 1035,
+    "score": 10,
+    "nps": 8246
+  }
+}

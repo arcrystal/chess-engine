@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chessengine"
+version = "0.1.0"
+description = "Personal chess engine with bitboard movegen, magic bitboards, alpha-beta search, and UCI."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "numpy>=1.24",
+    "numba>=0.59,<0.63",
+    "python-chess>=1.11",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-benchmark>=4",
+    "hypothesis>=6",
+]
+
+[project.scripts]
+chessengine = "src.uci:main"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+pythonpath = ["src"]

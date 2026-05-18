@@ -1,72 +1,81 @@
-from numba import types, uint64
-from numba.typed import List
+"""Core piece and side constants.
 
+Square convention: bit 0 = a1, bit 7 = h1, bit 56 = a8, bit 63 = h8.
+"""
+
+# Piece types (1..6 reserved for the array-path piece values; 0 == empty).
+EMPTY = 0
 PAWN = 1
 KNIGHT = 2
 BISHOP = 3
 ROOK = 4
 QUEEN = 5
 KING = 6
-EMPTY = 7
 
-board_str = """
-  +-------------------------+
-8 | 56 57 58 59 60 61 62 63 |
-  |                         |
-7 | 48 49 50 51 52 53 54 55 |
-  |                         |
-6 | 40 41 42 43 44 45 46 47 |
-  |                         |
-5 | 32 33 34 35 36 37 38 39 |
-  |                         |
-4 | 24 25 26 27 28 29 30 31 |
-  |                         |
-3 | 16 17 18 19 20 21 22 23 |
-  |                         |
-2 | 08 09 10 11 12 13 14 15 |
-  |                         |
-1 | 00 01 02 03 04 05 06 07 |
-  +-------------------------+
-    a  b  c  d  e  f  g  h
-"""
-# Define move triples
-f2f3 = (13, 21, 0)
-f2f4 = (13, 29, 0)
-g2g3 = (14, 22, 0)
-g2g4 = (14, 30, 0)
-e7e5 = (51, 35, 0)
-e7e6 = (51, 43, 0)
-d8h4 = (59, 31, 0)
+# Sides.
+WHITE = 0
+BLACK = 1
 
-# Helper to create Numba list from Python tuple of 3 moves
-def make_sequence(a, b, c):
-    l = List.empty_list(types.UniTuple(types.int64, 3))
-    l.append(a)
-    l.append(b)
-    l.append(c)
-    return l
+# Piece-color index (used for pieces[12], piece_on_square[64]).
+# 0..5 = white P,N,B,R,Q,K ; 6..11 = black P,N,B,R,Q,K ; -1 = empty (we encode 0 in piece_on_square as empty and shift by 1).
+WP, WN, WB, WR, WQ, WK = 0, 1, 2, 3, 4, 5
+BP, BN, BB, BR, BQ, BK = 6, 7, 8, 9, 10, 11
+NUM_PIECES = 12
 
-# Compose test mates
-move4_mates = List.empty_list(types.ListType(types.UniTuple(types.int64, 3)))
-for seq in [
-    (f2f3, e7e6, g2g4),
-    (f2f3, e7e5, g2g4),
-    (f2f4, e7e6, g2g4),
-    (f2f4, e7e5, g2g4),
-    (g2g4, e7e6, f2f3),
-    (g2g4, e7e6, f2f4),
-    (g2g4, e7e5, f2f3),
-    (g2g4, e7e5, f2f4)]:
-    move4_mates.append(make_sequence(*seq))
+# piece_on_square uses 0 = empty, 1..12 = piece+1 (so int8 is enough).
+EMPTY_SQUARE = 0
 
-move_state_type = types.Tuple((
-    uint64, uint64, uint64, uint64, uint64, uint64,   # white pieces
-    uint64, uint64, uint64, uint64, uint64, uint64,   # black pieces
-    types.UniTuple(types.int8, 4),                    # castling_rights
-    types.int64,                                      # en_passant_target
-    types.int32,                                      # halfmove_clock
-    types.int32                                       # fullmove_number
-))
+# Castling-right bitmask bits.
+CR_WK = 1
+CR_WQ = 2
+CR_BK = 4
+CR_BQ = 8
+CR_ALL = CR_WK | CR_WQ | CR_BK | CR_BQ
 
-number_of_positions  = [1, 20, 400, 8902, 197281, 4865609, 119060324, 3195901860, 84998978956, 2439530234167]
-number_of_checkmates = [0, 0,  0,   0,    8,      347,     10828,     435767,     9852036,     400191963]
+# Move flags (bits 14..15 of the packed 16-bit move).
+FLAG_NORMAL = 0
+FLAG_CASTLE = 1
+FLAG_EP = 2
+FLAG_PROMOTION = 3
+
+# Promotion target encoding inside the 16-bit move (bits 12..13).
+# 0=knight, 1=bishop, 2=rook, 3=queen — corresponds to KNIGHT-2 etc.
+PROMO_KNIGHT = 0
+PROMO_BISHOP = 1
+PROMO_ROOK = 2
+PROMO_QUEEN = 3
+
+# Useful square constants.
+A1, B1, C1, D1, E1, F1, G1, H1 = 0, 1, 2, 3, 4, 5, 6, 7
+A8, B8, C8, D8, E8, F8, G8, H8 = 56, 57, 58, 59, 60, 61, 62, 63
+
+# Files.
+FILE_A = 0x0101010101010101
+FILE_B = FILE_A << 1
+FILE_C = FILE_A << 2
+FILE_D = FILE_A << 3
+FILE_E = FILE_A << 4
+FILE_F = FILE_A << 5
+FILE_G = FILE_A << 6
+FILE_H = FILE_A << 7
+NOT_FILE_A = 0xFFFFFFFFFFFFFFFF ^ FILE_A
+NOT_FILE_H = 0xFFFFFFFFFFFFFFFF ^ FILE_H
+
+# Ranks.
+RANK_1 = 0x00000000000000FF
+RANK_2 = RANK_1 << 8
+RANK_3 = RANK_1 << 16
+RANK_4 = RANK_1 << 24
+RANK_5 = RANK_1 << 32
+RANK_6 = RANK_1 << 40
+RANK_7 = RANK_1 << 48
+RANK_8 = RANK_1 << 56
+
+MASK64 = 0xFFFFFFFFFFFFFFFF
+
+# Search constants.
+MATE = 30000
+MATE_IN_MAX = MATE - 1024
+INF = 32000
+MAX_PLY = 128
+MAX_MOVES = 256
