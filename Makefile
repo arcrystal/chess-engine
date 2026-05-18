@@ -10,9 +10,7 @@ perft:
 	$(PY) -m bench.bench_perft
 
 bench:
-	$(PY) -m bench.bench_eval
 	$(PY) -m bench.bench_perft
-	$(PY) -m bench.bench_search
 
 uci:
 	$(PY) -m src.uci

@@ -177,6 +177,7 @@ cython_debug/
 .DS_Store
 .idea/
 .vscode/
+.claude/
 backburner/
 tests/moves.txt
 logs/

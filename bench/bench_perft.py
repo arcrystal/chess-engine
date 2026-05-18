@@ -118,6 +118,38 @@ def main() -> None:
         n_s = search_res["nps"]
         print(f"  search nps:   {b_s} -> {n_s}  ({n_s/b_s:.2f}x)")
 
+    # Perft depth ladder from startpos. Canonical totals from the
+    # chess-programming wiki (https://www.chessprogramming.org/Perft_Results).
+    print("\nperft ladder from startpos (d1..d8):")
+    canonical = {
+        1: 20,
+        2: 400,
+        3: 8_902,
+        4: 197_281,
+        5: 4_865_609,
+        6: 119_060_324,
+        7: 3_195_901_860,
+        8: 84_998_978_956,
+    }
+    # Heads-up: d7 is ~3 min, d8 is ~75 min on this engine. Ctrl-C is safe.
+    print(f"  (d7 ~3 min, d8 ~75 min at ~19M nps — Ctrl-C to stop early)")
+    print(f"  {'depth':>5}  {'nodes':>15}  {'seconds':>8}  {'nps':>13}  {'check':>8}")
+    pos = parse_fen(CASES[0][1])  # startpos
+    for depth in range(1, 9):
+        t0 = time.perf_counter()
+        try:
+            n = perft(pos, depth)
+        except KeyboardInterrupt:
+            print(f"  d{depth}: aborted by user")
+            break
+        elapsed = time.perf_counter() - t0
+        nps = int(n / elapsed) if elapsed > 0 else 0
+        expected = canonical.get(depth)
+        check = "OK" if expected is not None and n == expected else (
+            f"!={expected}" if expected is not None else "?"
+        )
+        print(f"  {depth:>5}  {n:>15,}  {elapsed:>7.2f}s  {nps:>12,}  {check:>8}")
+
 
 if __name__ == "__main__":
     main()
